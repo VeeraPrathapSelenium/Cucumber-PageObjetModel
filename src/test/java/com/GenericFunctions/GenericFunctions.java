@@ -1,312 +1,183 @@
 package com.GenericFunctions;
 
-import java.util.concurrent.TimeUnit;
-
-import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.codoid.products.exception.FilloException;
-import com.codoid.products.fillo.Recordset;
+import com.ReportsGeneration.ReportGeneration;
 
-public class GenericFunctions extends TestNGListeners {
-	
-	
-	public static  WebDriver driver;
-
-	
-	
-
-	/*************************************************
-	
-	
-	Function Name:launchApplication
-	
-	Purpose:-This Function is used to launch the HRM Application when ever the user is required
-	
-	Input Parameters:-User must send in which browser does the application need to be launch
-	
-	Output Parameters:-This method will return a boolean value stating wheter the user logged into in the system
-	
-	Author:-Veera Prathap Malepati
-	
-	Creationn date:-12/30/2017
-	
-	
-	**************************************************/
+public class GenericFunctions extends ReportGeneration{
 	
 	
 	
+	public static WebDriver driver;
+	
+	/* Method Name:launchApplication
+	 * 
+	 * Purpose:This method is used launch the application in the user given browser
+	 * 
+	 * input parameters:User must send url and browser
+	 * 
+	 * Output parameter: Boolean 
+	 * 
+	 * Designer:
+	 */
 	
 	
-	public static boolean launchApplication(String browser) {
-		
+	public static boolean launchApplication(String browser,String url)
+	{
 		boolean status=true;
-		
-		String url=getCommontestdata("Url");
-		
-		switch (browser.toLowerCase()) {
-	
-		case "firefox":
-			
-			driver= new FirefoxDriver();
-	
-			
-			driver.get(url);
-			
-			
-			
-			break;
-			
-		case "chrome":
-			System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-			
-			driver=new ChromeDriver();
-			driver.get(url);
-			
-			break;
-			
-			
-			
-		default:
-			break;
-		}
-		driver.manage().window().maximize();	
-		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
-	return status;	
-		
-	}
-	
-
-	/*************************************************
-	
-	
-	Function Name:GetCommonTestdata 
-	
-	Purpose:-This Function is used to get the common test data which can be accessed commonly for each testcase such as Environment,Url,Username,Password
-	
-	Input Parameters:-User must send an argument stating what data that is required
-	
-	Output Parameters:-This method will return a string value for the User given input(If data is not found it will return a null)
-	
-	Author:-Veera Prathap Malepati
-	
-	Creationn date:-12/31/2017
-	
-	
-	**************************************************/
-	
-	
-	
-	public static String getCommontestdata(String data)
-	{
-		
-		String strQuery="Select "+ data+" from CommonTestdata";
-		
-		System.out.println(strQuery);
-		
-		Recordset recordset;
-		
-		String fetcheddata="";
-		
-		
-		try {
-			
-			recordset = TestNGListeners.connection.executeQuery(strQuery);
-			
-			while(recordset.next()){
-				
-				System.out.println("Data is found and the data is " +recordset.getField(data));
-				
-				fetcheddata=recordset.getField(data);
-				break;
-				
-				
-				}
-				 
-				recordset.close();
-			
-			
-		} catch (FilloException e) {
-			
-			System.out.println("No Records Found");
-		}
-		 
-		return fetcheddata;
-		
-		
-	}
-	
-	
-	public static String getdata(String sheetname,String userdata,int itr)
-	{
-		
-		String strQuery="Select "+ userdata+" from "+sheetname+ " where Tc_Name='"+crntclass+"' and Iteration="+itr;
-		System.out.println(strQuery);
-		
-		Recordset recordset;
-		
-		String fetcheddata="";
-		
-		
-		try {
-			
-			recordset = TestNGListeners.connection.executeQuery(strQuery);
-			
-			while(recordset.next()){
-				
-				System.out.println("Data is found and the data is " +recordset.getField(userdata));
-				
-				fetcheddata=recordset.getField(userdata);
-				break;
-				
-				
-				}
-				 
-				recordset.close();
-			
-			
-		} catch (FilloException e) {
-			
-			System.out.println("No Records Found");
-		}
-		 
-		return fetcheddata;
-		
-		
-	}
-	
-	public static boolean waitForElement(WebElement element)
-	{
-	boolean status=false;
-		for(int i=1;i<=10;i++)
-		{
 		try
 		{
-			System.out.println("Wait is executing");
-			Actions acc=new Actions(driver);
-			acc.moveToElement(element).build().perform();
-			
-			System.out.println("Element Found");
-			status=true;
-			break;
-			
-		}
-		catch(Exception e)
-		{
-			try {
-				Thread.sleep(1000);
+			switch (browser.toLowerCase()) {
+			case "firefox":
+				try
+				{
+					driver=new FirefoxDriver();
+					
+					driver.get(url);
+					
+					driver.manage().window().maximize();
+					System.out.println("Application is launced sucessfully");
+					logEvent("pass", "Fire Fox browser is launched");
+				}catch(Exception e)
+				{
+					System.out.println("Application is not launced sucessfully");
+					logEvent("fail", "Fire Fox browser is not launched");
+				}
 				
-			} catch (InterruptedException e1) {
+				break;
 				
-				e1.printStackTrace();
+			case "chrome":
+				
+				System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
+				driver=new ChromeDriver();
+				driver.get(url);
+				break;
+
+
+			default:
+				break;
+				
+				
 			}
 			
-		}
-		}
-		return status;	
-		
-	}
-	
-	
-	public static boolean hoverAndClick(WebElement element)
-	{
-	boolean status=true;
-		
-		try
+			driver.manage().window().maximize();
+				
+		}catch(Exception e)
 		{
-			waitForElement(element);
-			Actions acc=new Actions(driver);
-			acc.moveToElement(element).click().build().perform();
-		
-		
-			
-			
-		}
-		catch(Exception e)
-		{
-			
 			status=false;
+			
+			System.out.println("Unable to launch the browser because of "+e.getMessage());
+		}
 		
-		}	
+		return status;
 		
+	}
 	
-	
-	return status;
-	}	
-	
-	public static void forceClick(WebElement element)
+	/* Method Name:hover_Click
+	 * 
+	 * Purpose:This method is used click the element by hovering on it
+	 * 
+	 * input parameters:User must send the element
+	 * 
+	 * Output parameter: Boolean 
+	 * 
+	 * Designer:
+	 */
+	public static boolean hover_Click(WebElement element)
 	{
-		JavascriptExecutor js=(JavascriptExecutor)driver;
-		
-		js.executeScript("arguments[0].click();", element);
+		boolean status=true;
+		try
+		{
+			Actions acc=new Actions(driver);
+			acc.moveToElement(element).click(element).build().perform();
+			
+		}catch(Exception e)
+		{
+			System.out.println("unable to click on the element "+element+" because of "+e.getMessage());
+		}
+		return status;
 		
 	}
 	
 	
-	public static boolean clickAndSendData(WebElement element,String data)
+	/* Method Name:click_SendData
+	 * 
+	 * Purpose:This method is used click the element by hovering on it
+	 * 
+	 * input parameters:User must send the element
+	 * 
+	 * Output parameter: Boolean 
+	 * 
+	 * Designer:
+	 */
+	public static boolean click_SendData(WebElement element,String data)
 	{
-	boolean status=true;
-		
+		boolean status=true;
 		try
 		{
-			waitForElement(element);
-			Actions acc=new Actions(driver);
-			acc.moveToElement(element).click().build().perform();
+			element.click();
 			element.clear();
 			element.sendKeys(data);
-		
 			
 			
-		}
-		catch(Exception e)
+		}catch(Exception e)
 		{
+			System.out.println("unable to send the data to the element "+element+" because of "+e.getMessage());
+		}
+		return status;
+		
+	}
+	
+	/* Method Name:waitForElement
+	 * 
+	 * Purpose:This method is used click the element by hovering on it
+	 * 
+	 * input parameters:User must send the element
+	 * 
+	 * Output parameter: Boolean 
+	 * 
+	 * Designer:
+	 */
+	public static boolean waitForElement(WebElement element)
+	{
+		boolean status=true;
+		try
+		{
+			String actualxpath=element.toString();
 			
-			status=false;
+			String modifiedxpath=actualxpath.substring(actualxpath.indexOf("/"),actualxpath.lastIndexOf("]"));
+			
+			System.out.println(modifiedxpath);
+			
+			
+	new WebDriverWait(driver, 35).withMessage("Waited 35 seconds long for the element").until(ExpectedConditions.presenceOfElementLocated(By.xpath(modifiedxpath)));		
+	
+		}catch(Exception e)
+		{
+			System.out.println("unable to click on the element "+element+" because of "+e.getMessage());
+		}
+		return status;
 		
-		}	
-		
+	}
 	
 	
-	return status;
-	}	
 
 	
 	
 	
 	
-	public static boolean selectDropDOwn(WebElement element,String data)
-	{
-	boolean status=true;
-		
-		try
-		{
-			waitForElement(element);
-			Select slct=new Select(element);
-			
-			slct.selectByValue(data);
-			
-			
-		}
-		catch(Exception e)
-		{
-			
-			status=false;
-		
-		}	
-		
-	
-	
-	return status;
-	}		
 	
 	
 	
+	
+	
+	
+
 }
